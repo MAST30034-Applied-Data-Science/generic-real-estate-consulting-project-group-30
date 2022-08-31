@@ -54,7 +54,6 @@ for page in N_PAGES:
 
 
 # for each url, scrape some basic metadata
-count = 0
 for property_url in url_links[1:]:
     bs_object = BeautifulSoup(requests.get(property_url, headers=headers).text, "html.parser")
 
@@ -85,8 +84,6 @@ for property_url in url_links[1:]:
         )[0].split(',')
     ]
 
-    print(f"{count}: {property_metadata[property_url]['coordinates']}")
-    count += 1
 
     # This section below has an ERROR and I haven't bothered finding it. TODO find and
     # fix the error. Or errors, plural. Who knows.
