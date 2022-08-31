@@ -20,7 +20,10 @@ import requests
 
 # constants
 BASE_URL = "https://www.domain.com.au"
-N_PAGES = range(1, 51) # update this to your liking
+N_PAGES = range(1, 3) # update this to your liking
+
+# NOTE: IT'S LITERALLY GOING TO TAKE A REEEEEEAAAAALLLLYYY LONG TIME TO RUN THIS CODE. 
+# Especially if there are many number of pages. BE PATIENT.
 
 # begin code
 headers = {"User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 12871.102.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.141 Safari/537.36"}
@@ -51,6 +54,7 @@ for page in N_PAGES:
 
 
 # for each url, scrape some basic metadata
+count = 0
 for property_url in url_links[1:]:
     bs_object = BeautifulSoup(requests.get(property_url, headers=headers).text, "html.parser")
 
@@ -66,9 +70,12 @@ for property_url in url_links[1:]:
 
     # extract coordinates from the hyperlink provided
     # i'll let you figure out what this does :P
+    # Andrew: well, ummm...the link in bs_object takes you to the location of the property in gmaps.
     property_metadata[property_url]['coordinates'] = [
         float(coord) for coord in re.findall(
             r'destination=([-\s,\d\.]+)', # use regex101.com here if you need to
+                                          # Andrew: this is obviously the location 
+                                          # coordinate written in the gmaps link.
             bs_object \
                 .find(
                     "a",
@@ -78,11 +85,16 @@ for property_url in url_links[1:]:
         )[0].split(',')
     ]
 
-    property_metadata[property_url]['rooms'] = [
-        re.findall(r'\d\s[A-Za-z]+', feature.text)[0] for feature in bs_object \
-            .find("div", {"data-testid": "property-features"}) \
-            .findAll("span", {"data-testid": "property-features-text-container"})
-    ]
+    print(f"{count}: {property_metadata[property_url]['coordinates']}")
+    count += 1
+
+    # This section below has an ERROR and I haven't bothered finding it. TODO find and
+    # fix the error. Or errors, plural. Who knows.
+    #property_metadata[property_url]['rooms'] = [
+    #    re.findall(r'\d\s[A-Za-z]+', feature.text)[0] for feature in bs_object \
+    #        .find("div", {"data-testid": "property-features"}) \
+    #        .findAll("span", {"data-testid": "property-features-text-container"})
+    #]
 
     property_metadata[property_url]['desc'] = re \
         .sub(r'<br\/>', '\n', str(bs_object.find("p"))) \
