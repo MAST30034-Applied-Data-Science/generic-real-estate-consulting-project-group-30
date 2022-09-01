@@ -33,7 +33,7 @@ property_metadata = defaultdict(dict)
 
 # generate list of urls to visit
 for page in range(1, N_PAGES):
-    url = BASE_URL + f"/rent/?sort=dateupdated-desc&state=vic&page={page}" # todo: replace with /rent/?sort=dateupdated-desc&state=vic&page={page} (where page can be 1 or more) 
+    url = BASE_URL + f"/rent/?sort=dateupdated-desc&state=vic&page={page}"
     bs_object = BeautifulSoup(requests.get(url, headers=headers).text, "html.parser")
 
     # find the unordered list (ul) elements which are the results, then
@@ -52,8 +52,6 @@ for page in range(1, N_PAGES):
         # if its a property address, add it to the list
         if 'address' in link['class']:
             url_links.append(link['href'])
-
-temp1 = True # todo remove
 
 # for each url, scrape some basic metadata
 for property_url in url_links[1:]:
@@ -103,7 +101,12 @@ for property_url in url_links[1:]:
     p_type = bs_object \
         .find("div", {"data-testid":"listing-summary-property-type"}).text
     property_metadata[property_url]["property_type"] = p_type if p_type is not [] else "Not Listed"
-                
+    
+    property_metadata[property_url]['desc'] = re \
+        .sub(r'<br\/>', '\n', str(bs_object.find("p"))) \
+        .strip('</p>')
+    
+    
     # TODO: Add code here that scans the webpage for units of sqkm /acres/ etc and then adds an "area" feature. 
     # Part 1: extract from given area info (not from desc)
     p_area = bs_object \
@@ -119,11 +122,10 @@ for property_url in url_links[1:]:
         if "m<sup>" in elem:
             print(elem)
     # print(p_area)
-
-    property_metadata[property_url]['desc'] = re \
-        .sub(r'<br\/>', '\n', str(bs_object.find("p"))) \
-        .strip('</p>')
-
+    # TODO: this doesnt work when searching for the substring area but does for the others idk why
+    
+    # Part 2: using the desc generated above, find if there are any area properties 
+    
 # output to example json in data/raw/
 with open('../data/raw/example.json', 'w') as f:
     dump(property_metadata, f)
