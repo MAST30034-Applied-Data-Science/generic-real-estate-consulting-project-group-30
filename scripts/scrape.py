@@ -99,9 +99,26 @@ for property_url in url_links[1:]:
                 # assign the values; '-' replaced with 0.
                 property_metadata[property_url][feature] =  fd.text[0] if fd.text[0].isnumeric() else 0
                 
+    # the code below extracts property type
+    p_type = bs_object \
+        .find("div", {"data-testid":"listing-summary-property-type"}).text
+    property_metadata[property_url]["property_type"] = p_type if p_type is not [] else "Not Listed"
+                
     # TODO: Add code here that scans the webpage for units of sqkm /acres/ etc and then adds an "area" feature. 
-    
-
+    # Part 1: extract from given area info (not from desc)
+    p_area = bs_object \
+    .find(
+        "ul",
+        {"data-testid": "listing-summary-strip"}
+    ) \
+    .find_all(
+        "li"
+    )
+    # p_area = [elem for elem in p_area if ("area" in elem)]
+    for elem in p_area:
+        if "m<sup>" in elem:
+            print(elem)
+    # print(p_area)
 
     property_metadata[property_url]['desc'] = re \
         .sub(r'<br\/>', '\n', str(bs_object.find("p"))) \
