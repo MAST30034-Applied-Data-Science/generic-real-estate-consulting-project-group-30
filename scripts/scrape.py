@@ -20,7 +20,8 @@ import requests
 
 # constants
 BASE_URL = "https://www.domain.com.au"
-N_PAGES = range(1, 3) # update this to your liking
+N_PAGES = 3 # update this to your liking
+PROPERTY_FEATURES = {"Bed", "Bath", "Park"}
 
 # NOTE: IT'S LITERALLY GOING TO TAKE A REEEEEEAAAAALLLLYYY LONG TIME TO RUN THIS CODE. 
 # Especially if there are many number of pages. BE PATIENT.
@@ -31,8 +32,8 @@ url_links = []
 property_metadata = defaultdict(dict)
 
 # generate list of urls to visit
-for page in N_PAGES:
-    url = BASE_URL + f"/rent/melbourne-region-vic/?sort=price-desc&page={page}"
+for page in range(1, N_PAGES):
+    url = BASE_URL + f"/rent/?sort=dateupdated-desc&state=vic&page={page}" # todo: replace with /rent/?sort=dateupdated-desc&state=vic&page={page} (where page can be 1 or more) 
     bs_object = BeautifulSoup(requests.get(url, headers=headers).text, "html.parser")
 
     # find the unordered list (ul) elements which are the results, then
@@ -52,6 +53,7 @@ for page in N_PAGES:
         if 'address' in link['class']:
             url_links.append(link['href'])
 
+temp1 = True # todo remove
 
 # for each url, scrape some basic metadata
 for property_url in url_links[1:]:
@@ -84,14 +86,22 @@ for property_url in url_links[1:]:
         )[0].split(',')
     ]
 
+    
+    # want to extract the number of beds, baths and parking spaces from the features displayed on website
+    feature_data = bs_object \
+        .find_all("span", class_= "css-lvv8is")
+    
+    # for each of the divs we have found
+    for fd in feature_data:
+        # check which feature it matches (this avoids typos)
+        for feature in PROPERTY_FEATURES: 
+            if feature in fd.text[1:]:
+                # assign the values; '-' replaced with 0.
+                property_metadata[property_url][feature] =  fd.text[0] if fd.text[0].isnumeric() else 0
+                
+    # TODO: Add code here that scans the webpage for units of sqkm /acres/ etc and then adds an "area" feature. 
+    
 
-    # This section below has an ERROR and I haven't bothered finding it. TODO find and
-    # fix the error. Or errors, plural. Who knows.
-    #property_metadata[property_url]['rooms'] = [
-    #    re.findall(r'\d\s[A-Za-z]+', feature.text)[0] for feature in bs_object \
-    #        .find("div", {"data-testid": "property-features"}) \
-    #        .findAll("span", {"data-testid": "property-features-text-container"})
-    #]
 
     property_metadata[property_url]['desc'] = re \
         .sub(r'<br\/>', '\n', str(bs_object.find("p"))) \
