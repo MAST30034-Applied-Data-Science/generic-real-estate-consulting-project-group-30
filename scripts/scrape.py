@@ -9,11 +9,13 @@ This is by no means production code.
 import re
 from json import dump
 from collections import defaultdict
+import pandas as pd
 
 # user packages
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 import requests
+
 
 # constants
 BASE_URL = "https://www.domain.com.au"
@@ -47,31 +49,44 @@ property_metadata = defaultdict(dict)
 # https://www.domain.com.au/rent/?ssubs=0&keywords=ascot+vale&sort=suburb-asc&state=vic&page=1
 ####
 
-# generate list of urls to visit
-for page in range(1, N_PAGES):
-	url = BASE_URL + f"/rent/?sort=dateupdated-desc&state=vic&page={page}"
-	bs_object = BeautifulSoup(requests.get(url, headers=headers).text, "html.parser")
+# NOTE: run suburb.py before running this script
+suburbs = pd.read_csv("../data/raw/suburb.csv")
 
-	# try putting the value of N_PAGES to be higher than 50.
-	# the website will allow requests from page 1 to 51, and then after that, it doesn't anymore.
-	print(page)
+# need to replace whitespaces with "+"
+suburbs = suburbs["suburb"].tolist()
+suburbs = [re.sub(" ", "+", suburb) for suburb in suburbs]
 
-	# find the unordered list (ul) elements which are the results, then
-	# find all href (a) tags that are from the base_url website.
-	index_links = bs_object \
-		.find(
-			"ul",
-			{"data-testid": "results"}
-		) \
-		.findAll(
-			"a",
-			href=re.compile(f"{BASE_URL}/*") # the `*` denotes wildcard any
-		)
+# I haven't tested the code to see if it works. So, hopefully this works!
 
-	for link in index_links:
-		# if its a property address, add it to the list
-		if 'address' in link['class']:
-			url_links.append(link['href'])
+
+for suburb in suburbs:
+	# generate list of urls to visit
+	for page in range(1, N_PAGES):
+		url = BASE_URL + f"/rent/?ssubs=0&keywords={suburb}&sort=suburb-asc&state=vic&page={page}"
+		bs_object = BeautifulSoup(requests.get(url, headers=headers).text, "html.parser")
+
+		# try putting the value of N_PAGES to be higher than 50.
+		# the website will allow requests from page 1 to 51, and then after that, it doesn't anymore.
+		print(page)
+
+		# find the unordered list (ul) elements which are the results, then
+		# find all href (a) tags that are from the base_url website.
+		index_links = bs_object \
+			.find(
+				"ul",
+				{"data-testid": "results"}
+			) \
+			.findAll(
+				"a",
+				href=re.compile(f"{BASE_URL}/*") # the `*` denotes wildcard any
+			)
+
+		for link in index_links:
+			# if its a property address, add it to the list
+			if 'address' in link['class']:
+				url_links.append(link['href'])
+
+
 
 # for each url, scrape some basic metadata
 count = 1
