@@ -16,10 +16,13 @@ from bs4 import BeautifulSoup
 from urllib.request import urlopen
 import requests
 
+# for testing purposes
+from tqdm import tqdm
+
 
 # constants
 BASE_URL = "https://www.domain.com.au"
-N_PAGES = 4 # update this to your liking
+N_PAGES = 50 # update this to your liking
 PROPERTY_FEATURES = {"Bed", "Bath", "Park"}
 HA_TO_SQM = 10000
 ACRES_TO_SQM = 4046.8564
@@ -58,8 +61,9 @@ suburbs = [re.sub(" ", "+", suburb) for suburb in suburbs]
 
 # I haven't tested the code to see if it works. So, hopefully this works!
 
-
-for suburb in suburbs:
+print("Start Collection of URLs")
+for i in tqdm(range(len(suburbs))):
+	suburb = suburbs[i]
 	# generate list of urls to visit
 	for page in range(1, N_PAGES):
 		url = BASE_URL + f"/rent/?ssubs=0&keywords={suburb}&sort=suburb-asc&state=vic&page={page}"
@@ -67,31 +71,39 @@ for suburb in suburbs:
 
 		# try putting the value of N_PAGES to be higher than 50.
 		# the website will allow requests from page 1 to 51, and then after that, it doesn't anymore.
-		print(page)
+		if DEBUG: print(page)
 
 		# find the unordered list (ul) elements which are the results, then
 		# find all href (a) tags that are from the base_url website.
-		index_links = bs_object \
-			.find(
-				"ul",
-				{"data-testid": "results"}
-			) \
-			.findAll(
-				"a",
-				href=re.compile(f"{BASE_URL}/*") # the `*` denotes wildcard any
-			)
+		try: 
+			index_links = bs_object \
+				.find(
+					"ul",
+					{"data-testid": "results"}
+				) \
+				.findAll(
+					"a",
+					href=re.compile(f"{BASE_URL}/*") # the `*` denotes wildcard any
+				)
 
-		for link in index_links:
-			# if its a property address, add it to the list
-			if 'address' in link['class']:
-				url_links.append(link['href'])
+			for link in index_links:
+				# if its a property address, add it to the list
+				if 'address' in link['class']:
+					url_links.append(link['href'])
+		except: 
+			# This occurs if there is only m < N_pages of results for a certain suburb
+			if DEBUG: print(suburb)
+			break
 
 
 
 # for each url, scrape some basic metadata
 count = 1
-for property_url in url_links[1:]:
-	print(f"scraping property #{count}")
+print(url_links[0])
+print("Begin Property Scraping")
+for i in tqdm(range(len(url_links[1:]))):
+	property_url = url_links[1:][i+1]
+	if DEBUG: print(f"scraping property #{count}")
 	count += 1
 
 	bs_object = BeautifulSoup(requests.get(property_url, headers=headers).text, "html.parser")
@@ -172,7 +184,7 @@ for property_url in url_links[1:]:
 	found_area = []
 	
 	if (found_area == []):
-		#print(property_url)
+		if DEBUG: print(property_url)
 		try: 
 			p_area = bs_object \
 			.find(
