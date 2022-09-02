@@ -59,25 +59,24 @@ for page in range(1, N_PAGES):
 for property_url in url_links[1:]:
 	bs_object = BeautifulSoup(requests.get(property_url, headers=headers).text, "html.parser")
 
-	# looks for the header class to get property name
+	### looks for the header class to get property name
 	property_metadata[property_url]['name'] = bs_object \
 		.find("h1", {"class": "css-164r41r"}) \
 		.text
 
-	# looks for the div containing a summary title for cost
+
+	### looks for the div containing a summary title for cost
 	property_metadata[property_url]['cost_text'] = bs_object \
 		.find("div", {"data-testid": "listing-details__summary-title"}) \
 		.text
 	# note that this method grabs texts like "contact agent" as well. Need to preprocess it. TODO
+
 	
-	# extract coordinates from the hyperlink provided
-	# i'll let you figure out what this does :P
-	# Andrew: well, ummm...the link in bs_object takes you to the location of the property in gmaps.
+	### extract coordinates from the hyperlink provided
+	# the link in bs_object takes you to the location of the property in gmaps.
 	property_metadata[property_url]['coordinates'] = [
 		float(coord) for coord in re.findall(
-			r'destination=([-\s,\d\.]+)', # use regex101.com here if you need to
-										  # Andrew: this is obviously the location 
-										  # coordinate written in the gmaps link.
+			r'destination=([-\s,\d\.]+)', # the location coordinate written in the gmaps link
 			bs_object \
 				.find(
 					"a",
@@ -88,10 +87,9 @@ for property_url in url_links[1:]:
 	]
 
 	
-	# want to extract the number of beds, baths and parking spaces from the features displayed on website
+	### extract the number of beds, baths and parking spaces from the features displayed on website
 	feature_data = bs_object \
 		.find_all("span", class_= "css-lvv8is")
-	
 	
 	# for each of the divs we have found
 	for fd in feature_data:
@@ -100,8 +98,9 @@ for property_url in url_links[1:]:
 			if feature in fd.text[1:]:
 				# assign the values; '-' replaced with 0.
 				property_metadata[property_url][feature] =	fd.text[0] if fd.text[0].isnumeric() else 0
+
 				
-	# the code below extracts property type
+	### extract property type
 	p_type = bs_object \
 		.find("div", {"data-testid":"listing-summary-property-type"}).text
 	property_metadata[property_url]["property_type"] = p_type if p_type is not [] else "Not Listed"
@@ -109,8 +108,22 @@ for property_url in url_links[1:]:
 	property_metadata[property_url]['desc'] = re \
 		.sub(r'<br\/>', '\n', str(bs_object.find("p"))) \
 		.strip('</p>')
+
+
+	### extract additional property features other than bed, bath park, for example, 
+	# whether a property has aircon, heating, balcony, etc.
+	p_features = []
+	soup = bs_object \
+		.findAll("li", {"data-testid": "listing-details__additional-features-listing"})
 	
+	# some will result in an empty list, some will have additional property features listed.
+	for i in soup:
+		p_features.append(i.text)
+
+	property_metadata[property_url]["additional features"] = p_features
 	
+
+	### extract area
 	# TODO: Add code here that scans the webpage for units of sqkm /acres/ etc and then adds an "area" feature. 
 	# Part 1: extract from given area info (not from desc)
 	found_area = 0
@@ -171,6 +184,7 @@ for property_url in url_links[1:]:
 	except AttributeError:
 		#print(property_url)
 		pass
+
 # output to example json in data/raw/
 with open('../data/raw/example.json', 'w') as f:
 	dump(property_metadata, f)
