@@ -22,6 +22,8 @@ PROPERTY_FEATURES = {"Bed", "Bath", "Park"}
 HA_TO_SQM = 10000
 ACRES_TO_SQM = 4046.8564
 
+DEBUG = 0
+
 # NOTE: IT'S LITERALLY GOING TO TAKE A REEEEEEAAAAALLLLYYY LONG TIME TO RUN THIS CODE. 
 # Especially if there are many number of pages. BE PATIENT.
 
@@ -121,6 +123,8 @@ for property_url in url_links[1:]:
 	p_desc_head = bs_object.find("h4", {"data-testid": "listing-details__description-headline"}).text
 	property_metadata[property_url]["desc_head"] = p_desc_head
 	
+	### TODO: from the desc_head, extract the number of stories
+	
 	### extract property description
 	property_metadata[property_url]['desc'] = re \
 		.sub(r'<br\/>', '\n', str(bs_object.find("p"))) \
@@ -140,13 +144,11 @@ for property_url in url_links[1:]:
 	property_metadata[property_url]["additional features"] = p_features
 	
 	
-	
 	### extract area
-	# TODO: Add code here that scans the webpage for units of sqkm /acres/ etc and then adds an "area" feature. 
-	# Part 1: extract from given area info (not from desc)
-	found_area = 0
+	# Part 1: extract from given area summary info
+	found_area = []
 	
-	if (found_area == 0):
+	if (found_area == []):
 		print(property_url)
 		try: 
 			p_area = bs_object \
@@ -160,31 +162,34 @@ for property_url in url_links[1:]:
 			
 			for elem in p_area:
 				temp = str(elem).lower()
-				
 				# generate internal area where possible, using https://www.domain.com.au/110-webb-road-bonshaw-vic-3352-16070196
 				# as example
 				if "internal area" in (temp):
 					property_metadata[property_url]['internal_area_sqkm'] = re.findall('\d+', temp)
-					
+				
+				# can we get the land area as well?
 				if "land area" in (temp):
-					print(temp)
 					found_area = re.findall('\d+', temp)
 					
-			# need to improve this code to check p_desc_head = bs_object.find("h4", 
-			# {"data_testid": "listing-details__description-headline"}).text too. 
-			if (found_area == 0 or found_area == []):
+			# Lets check the description for area information
+			if (found_area == []):
+				# is the area in sq metres? 
 				found_area = re.findall('(\d+(?=\w?sqm))|(\d+(?=\w?m<sup>))', property_metadata[property_url]['desc'] + 
 																			property_metadata[property_url]["desc_head"])
+																			
 				if (found_area == []):
+					# is the found area in hectares?
 					found_area = re.findall('(\d+(?=\w?Hectares))|(\d+(?=\w?ha))', property_metadata[property_url]['desc'] + 
 																					property_metadata[property_url]["desc_head"])
 					if found_area: found_area = float(found_area[0])*HA_TO_SQM
+					
 				if (found_area == []):
+					# is the found area in acres?
 					found_area = re.findall('\d+(?=\w?acres)', property_metadata[property_url]['desc'] + 
 																property_metadata[property_url]["desc_head"])
 					if found_area: found_area = float(found_area[0])*ACRES_TO_SQM_TO_SQM
 				
-			# if the property type is flat or apartment, internal area may be incorrectly lsited as land area.
+			# if the property type is flat or apartment, internal area may be incorrectly listed as land area.
 			# eg: https://www.domain.com.au/2614-350-william-street-melbourne-vic-3000-16070171
 			
 			if "apartment" in property_metadata[property_url]["property_type"].lower():
@@ -192,12 +197,11 @@ for property_url in url_links[1:]:
 				property_metadata[property_url]['internal_area_sqkm'] = found_area if found_area is not [] else "Not Listed"
 			else:
 				property_metadata[property_url]['land_area_sqkm'] = found_area if found_area is not [] else "Not Listed"
-			
-			print("\nfound area", found_area, "\n")
+			if DEBUG: print("\nfound area", found_area, "\n")
 			
 		except AttributeError:
+			# occurs if there is no area summary attribute. This is fine, it just means we skip this.
 			pass
-			#)
 		
 	property_metadata[property_url]['land_area_sqkm'] = found_area
 	
