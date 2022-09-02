@@ -139,6 +139,8 @@ for property_url in url_links[1:]:
 				if "internal area" in (temp):
 					property_metadata[property_url]['internal_area_sqkm'] = re.findall('\d+', temp)
 					
+			# need to improve this code to check p_desc_head = bs_object.find("h4", 
+			# {"data_testid": "listing-details__description-headline"}).text too. 
 			if (found_area == 0):
 				found_area = re.findall('(\d+(?=\w?sqm))|(\d+(?=\w?m))', property_metadata[property_url]['desc'])
 				if (found_area == []):
