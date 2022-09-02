@@ -17,7 +17,7 @@ import requests
 
 # constants
 BASE_URL = "https://www.domain.com.au"
-N_PAGES = 3 # update this to your liking
+N_PAGES = 4 # update this to your liking
 PROPERTY_FEATURES = {"Bed", "Bath", "Park"}
 HA_TO_SQM = 10000
 ACRES_TO_SQM = 4046.8564
@@ -52,6 +52,10 @@ for page in range(1, N_PAGES):
 	url = BASE_URL + f"/rent/?sort=dateupdated-desc&state=vic&page={page}"
 	bs_object = BeautifulSoup(requests.get(url, headers=headers).text, "html.parser")
 
+	# try putting the value of N_PAGES to be higher than 50.
+	# the website will allow requests from page 1 to 51, and then after that, it doesn't anymore.
+	print(page)
+
 	# find the unordered list (ul) elements which are the results, then
 	# find all href (a) tags that are from the base_url website.
 	index_links = bs_object \
@@ -70,7 +74,11 @@ for page in range(1, N_PAGES):
 			url_links.append(link['href'])
 
 # for each url, scrape some basic metadata
+count = 1
 for property_url in url_links[1:]:
+	print(f"scraping property #{count}")
+	count += 1
+
 	bs_object = BeautifulSoup(requests.get(property_url, headers=headers).text, "html.parser")
 
 	### looks for the header class to get property name
@@ -149,7 +157,7 @@ for property_url in url_links[1:]:
 	found_area = []
 	
 	if (found_area == []):
-		print(property_url)
+		#print(property_url)
 		try: 
 			p_area = bs_object \
 			.find(
