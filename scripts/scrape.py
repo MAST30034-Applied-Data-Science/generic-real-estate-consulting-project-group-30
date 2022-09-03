@@ -146,7 +146,7 @@ for i in tqdm(range(len(url_links))):
 	
 	### extract property description head
 	p_desc_head = bs_object.find("h4", {"data-testid": "listing-details__description-headline"})
-	property_metadata[property_url]["desc_head"] = p_desc_head.text if p_desc_head is not [] else EMPTY_FIELD
+	property_metadata[property_url]["desc_head"] = EMPTY_FIELD if p_desc_head is [] else p_desc_head.text
 	
 	### TODO: from the desc_head, extract the number of stories
 	
