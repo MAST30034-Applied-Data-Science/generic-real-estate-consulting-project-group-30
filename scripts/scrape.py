@@ -99,31 +99,39 @@ for i in tqdm(range(len(url_links))):
 	bs_object = BeautifulSoup(requests.get(property_url, headers=headers).text, "html.parser")
 
 	### looks for the header class to get property name
-	property_metadata[property_url]['name'] = bs_object \
-		.find("h1", {"class": "css-164r41r"}) \
-		.text
-
+	try: 
+		property_metadata[property_url]['name'] = bs_object \
+			.find("h1", {"class": "css-164r41r"}) \
+			.text
+	except AttributeError:
+		property_metadata[property_url]['name'] = EMPTY_FIELD
 
 	### looks for the div containing a summary title for cost
-	property_metadata[property_url]['cost_text'] = bs_object \
-		.find("div", {"data-testid": "listing-details__summary-title"}) \
-		.text
+	try:
+		property_metadata[property_url]['cost_text'] = bs_object \
+			.find("div", {"data-testid": "listing-details__summary-title"}) \
+			.text
+	except:
+		property_metadata[property_url]['cost_text'] = EMPTY_FIELD
 	# note that this method grabs texts like "contact agent" as well. Need to preprocess it. TODO
 
 	
 	### extract coordinates from the hyperlink provided
 	# the link in bs_object takes you to the location of the property in gmaps.
-	property_metadata[property_url]['coordinates'] = [
-		float(coord) for coord in re.findall(
-			r'destination=([-\s,\d\.]+)', # the location coordinate written in the gmaps link
-			bs_object \
-				.find(
-					"a",
-					{"target": "_blank", 'rel': "noopener noreferer"}
-				) \
-				.attrs['href']
-		)[0].split(',')
-	]
+	try: 
+		property_metadata[property_url]['coordinates'] = [
+			float(coord) for coord in re.findall(
+				r'destination=([-\s,\d\.]+)', # the location coordinate written in the gmaps link
+				bs_object \
+					.find(
+						"a",
+						{"target": "_blank", 'rel': "noopener noreferer"}
+					) \
+					.attrs['href']
+			)[0].split(',')
+		]
+	except:
+		property_metadata[property_url]['coordinates'] = EMPTY_FIELD
 
 	
 	### extract the number of beds, baths and parking spaces from the features displayed on website
@@ -133,15 +141,20 @@ for i in tqdm(range(len(url_links))):
 	# for each of the divs we have found
 	for fd in feature_data:
 		# check which feature it matches (this avoids typos)
-		for feature in PROPERTY_FEATURES: 
-			if feature in fd.text[1:]:
-				# assign the values; '-' replaced with 0.
-				property_metadata[property_url][feature] =	fd.text[0] if fd.text[0].isnumeric() else 0
+		if fd is not None:
+			for feature in PROPERTY_FEATURES: 
+				if feature in fd.text[1:]:
+					# assign the values; '-' replaced with 0.
+					property_metadata[property_url][feature] =	fd.text[0] if fd.text[0].isnumeric() else 0
 
 				
 	### extract property type
 	p_type = bs_object \
-		.find("div", {"data-testid":"listing-summary-property-type"}).text
+		.find("div", {"data-testid":"listing-summary-property-type"})
+	if p_type is not None: 
+		p_type = p_type.text
+	else: 
+		p_type = EMPTY_FIELD
 	property_metadata[property_url]["property_type"] = p_type if p_type is not [] else EMPTY_FIELD
 	
 	### extract property description head
@@ -154,10 +167,12 @@ for i in tqdm(range(len(url_links))):
 	### TODO: from the desc_head, extract the number of stories
 	
 	### extract property description
-	property_metadata[property_url]['desc'] = re \
-		.sub(r'<br\/>', '\n', str(bs_object.find("p"))) \
-		.strip('</p>')
-
+	try:
+		property_metadata[property_url]['desc'] = re \
+			.sub(r'<br\/>', '\n', str(bs_object.find("p"))) \
+			.strip('</p>')
+	except AttributeError:
+		property_metadata[property_url]['desc'] = EMPTY_FIELD
 
 	### extract additional property features other than bed, bath park, for example, 
 	# whether a property has aircon, heating, balcony, etc.
