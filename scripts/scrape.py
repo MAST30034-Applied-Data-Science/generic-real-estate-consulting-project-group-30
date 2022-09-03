@@ -98,9 +98,6 @@ for i in tqdm(range(len(suburbs))):
 			if DEBUG: print(suburb)
 			break
 
-with open('../data/raw/urls.json', 'w') as f:
-	dump(url_links, f)
-
 # for each url, scrape some basic metadata
 count = 1
 print("Begin Property Scraping")
