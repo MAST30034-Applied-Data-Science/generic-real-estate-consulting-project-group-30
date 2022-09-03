@@ -34,7 +34,7 @@ DEBUG = 0
 
 # begin code
 headers = {"User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 12871.102.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.141 Safari/537.36"}
-url_links = []
+url_links = set()
 property_metadata = defaultdict(dict)
 
 #### TODO: 
@@ -84,25 +84,28 @@ for i in tqdm(range(len(suburbs))):
 				.findAll(
 					"a",
 					href=re.compile(f"{BASE_URL}/*") # the `*` denotes wildcard any
+					# TODO: cn theoretically vastly improve speed by checking if suburb keywords are in the link
 				)
 
 			for link in index_links:
 				# if its a property address, add it to the list
 				if 'address' in link['class']:
-					url_links.append(link['href'])
+					url_links.add(link['href'])
+			
+			
 		except: 
 			# This occurs if there is only m < N_pages of results for a certain suburb
 			if DEBUG: print(suburb)
 			break
 
-
+with open('../data/raw/urls.json', 'w') as f:
+	dump(url_links, f)
 
 # for each url, scrape some basic metadata
 count = 1
-print(url_links[0])
 print("Begin Property Scraping")
-for i in tqdm(range(len(url_links[1:]))):
-	property_url = url_links[1:][i+1]
+for i in tqdm(range(len(url_links))):
+	property_url = url_links[i]
 	if DEBUG: print(f"scraping property #{count}")
 	count += 1
 
