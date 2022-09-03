@@ -22,7 +22,7 @@ from tqdm import tqdm
 
 # constants
 BASE_URL = "https://www.domain.com.au"
-N_PAGES = 50 # update this to your liking
+N_PAGES = 2 # update this to your liking
 PROPERTY_FEATURES = {"Bed", "Bath", "Park"}
 HA_TO_SQM = 10000
 ACRES_TO_SQM = 4046.8564
@@ -37,27 +37,10 @@ headers = {"User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 12871.102.0) AppleWebKit
 url_links = set()
 property_metadata = defaultdict(dict)
 
-#### TODO: 
-# The current NPages is limited to 50 (1000 requests) due to the domain.com API
-# So, we need to do it by suburb.
-# we can get a list of suburbs from scraping here: https://www.domain.com.au/liveable-melbourne/melbournes-most-liveable-suburbs-2019/melbournes-307-suburbs-ranked-for-liveability-2019-898676/
-# Note as this is a domain.com website, the spelling should be consistent (if you find an alternative dataset go for it)
-# theres probably just a list you can get from abs or wikipedia or something
-# try to make sure its SA2
-# 
-# Once that is done, need to formulate a URL in this way:
-# https://www.domain.com.au/rent/?ssubs=0&keywords={suburb}&sort=suburb-asc&state=vic&page=1
-# replace spaces with +
-# example for ascot vale:
-# https://www.domain.com.au/rent/?ssubs=0&keywords=ascot+vale&sort=suburb-asc&state=vic&page=1
-####
+# NOTE: run search_suburbs.py before running this script
+suburbs = pd.read_csv("../data/raw/suburb_urls.csv")
 
-# NOTE: run suburb.py before running this script
-suburbs = pd.read_csv("../data/raw/suburb.csv")
-
-# need to replace whitespaces with "+"
-suburbs = suburbs["suburb"].tolist()
-suburbs = [re.sub(" ", "+", suburb) for suburb in suburbs]
+suburbs = suburbs["suburb_url"].tolist()
 
 # I haven't tested the code to see if it works. So, hopefully this works!
 
@@ -66,7 +49,7 @@ for i in tqdm(range(len(suburbs))):
 	suburb = suburbs[i]
 	# generate list of urls to visit
 	for page in range(1, N_PAGES):
-		url = BASE_URL + f"/rent/?ssubs=0&keywords={suburb}&sort=suburb-asc&state=vic&page={page}"
+		url = suburb + f"&page={page}"
 		bs_object = BeautifulSoup(requests.get(url, headers=headers).text, "html.parser")
 
 		# try putting the value of N_PAGES to be higher than 50.
@@ -90,14 +73,23 @@ for i in tqdm(range(len(suburbs))):
 			for link in index_links:
 				# if its a property address, add it to the list
 				if 'address' in link['class']:
+					link_found = link['href']
+					#if suburb in re.sub(" ", "-", link_found).lower():
+					#	if DEBUG: print(link_found)
 					url_links.add(link['href'])
+					
 			
 			
 		except: 
 			# This occurs if there is only m < N_pages of results for a certain suburb
 			if DEBUG: print(suburb)
 			break
-
+			
+url_links = list(url_links)
+# output to urls json in data/raw/
+with open('../data/raw/urls.json', 'w') as f:
+	dump(property_metadata, f)
+	
 # for each url, scrape some basic metadata
 count = 1
 print("Begin Property Scraping")
