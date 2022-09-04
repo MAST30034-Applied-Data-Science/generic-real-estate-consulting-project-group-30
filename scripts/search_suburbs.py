@@ -12,6 +12,8 @@ import time
 import pandas as pd
 from tqdm import tqdm
 
+headers = {"User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 12871.102.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.141 Safari/537.36"}
+
 # NOTE: run suburb.py before running this script
 suburbs = pd.read_csv("../data/raw/suburb.csv")
 
@@ -23,7 +25,7 @@ d = webdriver.Chrome(ChromeDriverManager().install())
 delay = 5
 for i in tqdm(range(len(suburbs))):
   suburb = suburbs[i].text
-  d.get('https://www.domain.com.au/rent/?ssubs=0')
+  d.get('https://www.domain.com.au/rent/?ssubs=0', headers=headers)
   myElem = WebDriverWait(d, delay).until(EC.presence_of_element_located(("id", 'search-filters-typeahead-input')))
   e = d.find_element("id", 'search-filters-typeahead-input')
   WebDriverWait(d, 10).until(EC.element_to_be_clickable(

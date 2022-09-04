@@ -71,9 +71,6 @@ for i in tqdm(range(len(suburbs))):
 			for link in index_links:
 				# if its a property address, add it to the list
 				if 'address' in link['class']:
-					link_found = link['href']
-					#if suburb in re.sub(" ", "-", link_found).lower():
-					#	if DEBUG: print(link_found)
 					url_links.add(link['href'])
 					
 			
