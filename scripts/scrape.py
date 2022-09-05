@@ -22,7 +22,7 @@ from tqdm import tqdm
 
 # constants
 BASE_URL = "https://www.domain.com.au"
-N_PAGES = 1 # update this to your liking
+N_PAGES = 50 # update this to your liking
 PROPERTY_FEATURES = {"Bed", "Bath", "Park"}
 HA_TO_SQM = 10000
 ACRES_TO_SQM = 4046.8564
