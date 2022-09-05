@@ -24,8 +24,8 @@ suburb_urls = []
 d = webdriver.Chrome(ChromeDriverManager().install())
 delay = 5
 for i in tqdm(range(len(suburbs))):
-  suburb = suburbs[i].text
-  d.get('https://www.domain.com.au/rent/?ssubs=0', headers=headers)
+  suburb = suburbs[i]
+  d.get('https://www.domain.com.au/rent/?ssubs=0')
   myElem = WebDriverWait(d, delay).until(EC.presence_of_element_located(("id", 'search-filters-typeahead-input')))
   e = d.find_element("id", 'search-filters-typeahead-input')
   WebDriverWait(d, 10).until(EC.element_to_be_clickable(
@@ -37,7 +37,7 @@ for i in tqdm(range(len(suburbs))):
         ("id", 'search-filters-typeahead-input'))).click()
   e.send_keys(Keys.RETURN)
   e.send_keys(Keys.RETURN)
-  print("link", d.current_url)
+  # print("link", d.current_url)
   suburb_urls.append(d.current_url)
   
 # save the list of suburbs to csv
