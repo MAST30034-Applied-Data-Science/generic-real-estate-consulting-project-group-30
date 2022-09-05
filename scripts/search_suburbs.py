@@ -11,8 +11,13 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 import pandas as pd
 from tqdm import tqdm
+from selenium.webdriver.chrome.options import Options
 
-headers = {"User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 12871.102.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.141 Safari/537.36"}
+options = Options()
+options.add_argument('--headless')
+options.add_argument('--disable-gpu')
+
+# headers = {"User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 12871.102.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.141 Safari/537.36"}
 
 # NOTE: run suburb.py before running this script
 suburbs = pd.read_csv("../data/raw/suburb.csv")
@@ -21,7 +26,7 @@ suburbs = suburbs["suburb"].tolist()
 
 suburb_urls = []
 
-d = webdriver.Chrome(ChromeDriverManager().install())
+d = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
 delay = 5
 for i in tqdm(range(len(suburbs))):
   suburb = suburbs[i]
