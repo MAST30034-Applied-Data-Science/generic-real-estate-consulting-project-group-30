@@ -13,7 +13,7 @@ To run the pipeline, please visit the `scripts` and `notebooks directory` and ru
 2. `search_suburbs.py`: This script uses domain.com.au's autocomplete feature to get the URLs for Victoria's suburbs and saves it to `data\raw`
 3. `scrape.py`: This script generates every page with houses for each suburb, and then scrapes properties, saving them to the `data\raw` directory
 
-
+NOTE: don't forget the dependencies in requirements.txt
 
 
 ## Group Members 
