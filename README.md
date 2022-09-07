@@ -8,12 +8,11 @@ The research goal of this project is to inspect rent growth prices for various V
 The timeline for the property data is from the 2022 year, taken from the month of sept. The rest of the data is taken from the 2021 year. 
 
 ## Pipeline
-To run the pipeline, please visit the `scripts` and `notebooks directory` and run the files in order:
+To run the pipeline, please download the dependencies in requirements.txt. Please note that the chrome browser is required for the program to run. 
+Then, please visit the `scripts` and `notebooks directory` and run the files in order:
 1. `suburb.py`: This scrapes all the 307 SA2 level suburbs and saves it in the `data\raw` directory
 2. `search_suburbs.py`: This script uses domain.com.au's autocomplete feature to get the URLs for Victoria's suburbs and saves it to `data\raw`
 3. `scrape.py`: This script generates every page with houses for each suburb, and then scrapes properties, saving them to the `data\raw` directory
-
-NOTE: don't forget the dependencies in requirements.txt
 
 
 ## Group Members 
