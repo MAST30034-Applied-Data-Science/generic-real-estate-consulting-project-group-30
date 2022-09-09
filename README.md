@@ -12,7 +12,8 @@ To run the pipeline, please download the dependencies in requirements.txt. Pleas
 Then, please visit the `scripts` and `notebooks directory` and run the files in order:
 1. `suburb.py`: This scrapes all the 307 SA2 level suburbs and saves it in the `data\raw` directory
 2. `search_suburbs.py`: This script uses domain.com.au's autocomplete feature to get the URLs for Victoria's suburbs and saves it to `data\raw`
-3. `scrape.py`: This script generates every page with houses for each suburb, and then scrapes properties, saving them to the `data\raw` directory
+3. `generate_urls.py`: This script generates all the property URLs by suburb
+3. `scrape.py`: This script scrapes properties, saving them to the `data\raw` directory
 
 
 ## Group Members 
