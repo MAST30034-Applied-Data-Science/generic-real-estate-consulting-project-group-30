@@ -1,5 +1,11 @@
-# note: year needs to be 2021, 2016, or 2011, any other value'd be invalid since the census doesn't exist every year
 def download_census(year):
+    """
+    downloads the census data from abs.gov.au, extracts the ZIP file, get income and population 
+    (which are G02, G17A, and G17B, or B if 2011)
+    note: year needs to be 2021, 2016, or 2011, any other value would 
+    be invalid since the census doesn't exist every year
+    """
+    
     import requests
     import zipfile
     from io import BytesIO
