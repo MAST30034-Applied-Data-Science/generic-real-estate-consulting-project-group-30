@@ -23,11 +23,12 @@ Then, please visit the `notebooks` directory and run these files in order:
 `income_&_population_2011_2016.ipynb`
 `routing_assignments.ipynb`
 `shapefiles_visualisation.ipynb`
-`visualisation_housing.ipynb`
+
 
 2. property data preprocessing:
 `preprocess_property.ipynb`
 `assign_suburbs.ipynb`
+`visualisation_housing.ipynb`
 
 3. joining datasets:
 `join_datasets.ipynb`
