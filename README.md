@@ -13,6 +13,8 @@ Then, please visit the `scripts` and `notebooks directory` and run the files in 
 2. `search_suburbs.py`: This script uses domain.com.au's autocomplete feature to get the URLs for Victoria's suburbs and saves it to `data\raw`
 3. `generate_urls.py`: This script generates all the property URLs by suburb
 3. `scrape.py`: This script scrapes properties, saving them to the `data\raw` directory
+4. `download_census.py`: This script downloads census data from Australian Bureau of Statistics(ABS) abs.gov.au for 2011,2016,2021, saving them to the `data\raw` directory
+5. `download_crime.ipynb`: This script downloads crime data, saving them to the `data\raw` directory
 
 
 ## Group Members 
