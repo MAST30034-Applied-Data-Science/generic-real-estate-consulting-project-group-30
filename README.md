@@ -4,7 +4,7 @@
 The research goal of this project is to inspect rent growth prices for various Victorian suburbs and predict areas that will have the greatest growth within the coming years. External factors such as crime, population, income and public transport have been taken into account. 
 
 ## Timeline
-The timeline for the property data is from the 2022 year, taken from the month of sept. The rest of the data is taken from the 2021 year. 
+The timeline for the property data is from the 2022 year, taken from the month of September. The rest of the data is taken from the year 2021. 
 
 ## Pipeline
 To run the pipeline, please download the dependencies in requirements.txt. Please note that the chrome browser is required for the program to run. 
