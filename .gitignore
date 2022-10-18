@@ -129,7 +129,11 @@ dmypy.json
 .pyre/
 
 # data
-
+data/raw/shapefiles/Statistical_area_level2/SA2_2021_AUST_GDA2020.dbf
+data/raw/shapefiles/Statistical_area_level2/SA2_2021_AUST_GDA2020.prj 
+data/raw/shapefiles/Statistical_area_level2/SA2_2021_AUST_GDA2020.shp
+data/raw/shapefiles/Statistical_area_level2/SA2_2021_AUST_GDA2020.shx 
+data/raw/shapefiles/Statistical_area_level2/SA2_2021_AUST_GDA2020.xml
 
 # OSX .DS_Store file
 .DS_Store

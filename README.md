@@ -9,13 +9,15 @@ The timeline for the property data is from the year 2022, taken from the month o
 ## Pipeline
 To run the pipeline, please download the dependencies in requirements.txt. Please note that the chrome browser is required for the program to run. 
 Then, please visit the `scripts` directory and run the files in order:
-1. `suburb.py`: This scrapes all the 307 SA2 level suburbs and saves it in the `data\raw` directory
-2. `search_suburbs.py`: This script uses domain.com.au's autocomplete feature to get the URLs for Victoria's suburbs and saves it to `data\raw`
-3. `generate_urls.py`: This script generates all the property URLs by suburb
-3. `scrape.py`: This script scrapes properties, saving them to the `data\raw` directory
-4. `download_census.py`: This script downloads census data from Australian Bureau of Statistics(ABS) abs.gov.au for 2011,2016,2021, saving them to the `data\raw` directory. <br/>
+(Please note that only step 1. `shapefiles.py` needs to be run since the shapefiles were too large to upload. The raw data for steps 2-7 have already been uploaded but may be run again if required.)
+1. `shapefiles.py`: This script downloads the Australian SA2 shapefiles from the Australian Bureau of Statistics(ABS), and saves them to the `data\raw\shapefiles` directory.
+2. `suburb.py`: This scrapes all the 307 SA2 level suburbs and saves it in the `data\raw` directory
+3. `search_suburbs.py`: This script uses domain.com.au's autocomplete feature to get the URLs for Victoria's suburbs and saves it to `data\raw`
+4. `generate_urls.py`: This script generates all the property URLs by suburb
+5. `scrape.py`: This script scrapes properties, saving them to the `data\raw` directory
+6. `download_census.py`: This script downloads census data from the Australian Bureau of Statistics(ABS) abs.gov.au for 2011,2016,2021, saving them to the `data\raw` directory. <br/>
 Please visit the notebook directory at this time.
-5. `download_crime.ipynb`: This notebook downloads crime data, saving them to the `data\raw` directory
+7. `download_crime.ipynb`: This notebook downloads crime data, saving them to the `data\raw` directory
 
 Then, please visit the `notebooks` directory and run these files in order:
 1. external data preprocessing: <br/>
